@@ -11,20 +11,16 @@ struct ContentView: View {
     var predators = Predators()
     
     @State var searchText = ""
+    @State var alphabetical: Bool = false
     
-    var filterDionos: [ApexPredator] {
-        if searchText.isEmpty {
-            return predators.apexPredators
-        } else {
-            return predators.apexPredators.filter { predator in
-                predator.name.localizedCaseInsensitiveContains(searchText)
-            }
-        }
+    var filteredDionos: [ApexPredator] {
+        predators.sort(by: alphabetical)
+        return predators.search(for: searchText)
     }
     
     var body: some View {
         NavigationStack {
-            List(filterDionos) { predator in
+            List(filteredDionos) { predator in
                 NavigationLink {
                     Image(predator.image)
                         .resizable()
@@ -60,6 +56,18 @@ struct ContentView: View {
                         placement: .navigationBarDrawer(displayMode: .automatic))
             .autocorrectionDisabled()
             .animation(.default, value: searchText)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        withAnimation {
+                            alphabetical.toggle()
+                        }
+                    } label: {
+                        Image(systemName: alphabetical ? "film" : "textformat")
+                            .symbolEffect(.bounce, value: alphabetical)
+                    }
+                }
+            }
         }
         .preferredColorScheme(.dark)
     }
